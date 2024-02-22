@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FieldController;
+use App\Http\Controllers\VenueController;
+use App\Http\Controllers\BookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,5 +22,30 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/', function () {
-    return ['mensaje' => 'hola!'];
+    return ['message' => 'SportsOD - sports on demand'];
+});
+
+Route::controller(FieldController::class)->group(function () {
+    Route::get('/field/{id}', 'read');
+    Route::post('/field/create', 'create');
+    Route::put('/field/{id}', 'update');
+    Route::delete('/field/{id}', 'delete');
+    Route::get('/field/{id}/bookings', 'listBookingsByField');
+});
+
+Route::controller(VenueController::class)->group(function () {
+    Route::get('/venue/{id}', 'read');
+    Route::post('/venue/create', 'create');
+    Route::put('/venue/{id}', 'update');
+    Route::delete('/venue/{id}', 'delete');
+    Route::get('/venue/{id}/fields', 'listFields');
+});
+
+Route::controller(BookingController::class)->group(function () {
+    Route::get('/booking/{id}', 'read');
+    Route::post('/booking/create', 'create');
+    Route::put('/booking/{id}', 'update');
+    Route::delete('/booking/{id}', 'delete');
+    Route::get('/field/{id}/bookings', 'listBookingsByField');
+    Route::post('/active-bookings', 'listBookingsBetweenDates');
 });
