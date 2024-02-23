@@ -6,7 +6,6 @@ use App\Models\Venue;
 use App\Models\Field;
 use App\Models\FieldType;
 use Illuminate\Database\Seeder;
-use App\Constants\ProductTypes;
 
 class VenuesAndFieldsSeeder extends Seeder
 {

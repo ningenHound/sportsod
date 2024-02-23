@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Venue;
+use Illuminate\Support\Facades\Redis;
 
 class VenueController extends Controller
 {
@@ -57,6 +58,18 @@ class VenueController extends Controller
             return response(['mensaje'=>'el venue no existe'], 404)->header('Content-Type', 'application/json');
         }
         $venue->delete();
+    }
+
+    public function listVenues(Request $request) {
+        $redis = Redis::connection();
+        $redisVenues = $redis->get('venues');
+        if(isset($redisVenues)) {
+            $venues = json_decode($redisVenues);
+        } else {
+            $redis->set('venues', json_encode(Venue::all()));
+            $venues = json_decode($redis->get('venues'));
+        }
+        return response($venues, 200)->header('Content-Type', 'application/json');
     }
 
     private function validateInteger($idParam) {

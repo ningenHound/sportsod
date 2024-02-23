@@ -71,6 +71,7 @@ class FieldController extends Controller
         if(!$this->validateInteger($id)) {
             return ['mensaje'=>'el id debe ser entero'];
         }
+        return [];
     }
 
     private function validateCreate($request):array {
@@ -80,6 +81,7 @@ class FieldController extends Controller
         if(!$this->validateInteger($request->field_type) || !$this->validateInteger($request->venue_id)) {
             return ['mensaje'=>'los campos field_type y venue_id deben ser enteros'];
         }
+        return [];
     }
 
     private function validateUpdate($request):array {
@@ -92,5 +94,6 @@ class FieldController extends Controller
         if(!$this->validateInteger($request->field_type) || !$this->validateInteger($request->venue_id)) {
             return ['mensaje'=>'los campos field_type y venue_id deben ser enteros'];
         }
+        return [];
     }
 }
