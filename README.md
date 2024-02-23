@@ -16,5 +16,5 @@ To run this project:
 - in your .env file, set the DB_PASSWORD with your own PostgreSQL password, the DB_USERNAME is set to postgres, but you're free to change it for your own PostgreSQL user
 - run `composer install`
 - create a postgres database called sportsod
-- run the migrations with `php artisan migrate`
+- run the migrations and seeders with `php artisan migrate:fresh --seed`
 - start the project locally with `php artisan serve`
