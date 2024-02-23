@@ -17,4 +17,5 @@ To run this project:
 - run `composer install`
 - create a postgres database called sportsod
 - run the migrations and seeders with `php artisan migrate:fresh --seed`
+- run the REDIS server with `redis-server`
 - start the project locally with `php artisan serve`
