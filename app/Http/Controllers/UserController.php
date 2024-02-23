@@ -23,6 +23,15 @@ class UserController extends Controller
 
     public function create(Request $request) {
         $error = $this->validateCreate($request);
+        $errorAuth = $this->validateAuth($request);
+        if(isset($errorAuth['mensaje'])) {
+            return response($error, 401)->header('Content-Type', 'application/json');
+        }
+        $token = $request->bearerToken();
+        $role_id = JWTHelper::getClaim($token);
+        if(Role::find($role_id)->description !="SYSTEM_ADMIN") {
+            return response('no autorizado', 403)->header('Content-Type', 'application/json');
+        }
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
         }
@@ -36,6 +45,10 @@ class UserController extends Controller
 
     public function update(Request $request, string $id) {
         $updateArray = [];
+        $errorAuth = $this->validateAuth($request);
+        if(isset($errorAuth['mensaje'])) {
+            return response($error, 401)->header('Content-Type', 'application/json');
+        }
         $error = $this->validateUpdate($request);
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
@@ -58,6 +71,10 @@ class UserController extends Controller
     }
 
     public function delete(Request $request, string $id) {
+        $errorAuth = $this->validateAuth($request);
+        if(isset($errorAuth['mensaje'])) {
+            return response($error, 401)->header('Content-Type', 'application/json');
+        }
         $error = $this->validateReadAndDelete($request, $id);
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
@@ -67,6 +84,32 @@ class UserController extends Controller
             return response(['mensaje'=>'el usuario no existe'], 404)->header('Content-Type', 'application/json');
         }
         $user->delete();
+    }
+
+    public function login(Request $request):string {
+        $error = $this->validateLogin($request);
+        if(isset($error['mensaje'])) {
+            return response($error, 400)->header('Content-Type', 'application/json');
+        }
+        $user = User::where('email', $request->email)->first();
+        if(!$user) {
+            return response(['mensaje'=> 'usuario o password incorrectos'], 401)->header('Content-Type', 'application/json');
+        }
+        if(!Hash::check($request->password, $user->password)) {
+            return response(['mensaje'=> 'usuario o password incorrectos'], 401)->header('Content-Type', 'application/json');
+        }
+        return JWTHelper::generate($user, env('APP_KEY', 'secret'));
+    }
+
+    public function validateAuth(Request $request):array {
+        $token = $request->bearerToken();
+        if ($token === "") {
+            return ['mensaje'=> 'usuario no autenticado'];
+        }
+        if(!JWTHelper::isValid($token, env('APP_KEY', 'secret'))) {
+            return ['mensaje'=> 'token no valido'];
+        }
+        return [];
     }
 
     private function validateInteger($idParam) {
@@ -88,6 +131,16 @@ class UserController extends Controller
     private function validateReadAndDelete($request, $id):array {
         if(!$this->validateInteger($id)) {
             return ['mensaje'=>'el id debe ser entero'];
+        }
+        return [];
+    }
+
+    private function validateLogin($request) {
+        if(!isset($request->email) || !isset($request->password)) {
+            return ['mensaje'=>'el email y el password son obligatorios'];
+        }
+        if(!$this->validateEmail($request->email)) {
+            return ['mensaje'=>'el campo email no es valido'];
         }
         return [];
     }
