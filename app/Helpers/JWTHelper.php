@@ -11,15 +11,13 @@ class JWTHelper {
         $jwt = substr($jwt, strlen("Bearer "));
         $tokenParts = explode('.', $jwt);
         $header = $tokenParts[0];
-        
         $payload = $tokenParts[1];
         $signature = $tokenParts[2];
     
-        $signature = hash_hmac($algorythm, $header . "." . $payload, $secret, true);
-        $base64UrlSignature = Base64UrlHelper::base64url_encode($signature);
-    
+        $signatureGenerated = Base64UrlHelper::base64url_encode(hash_hmac($algorythm, $header . "." . $payload, $secret, true));
+        
         // verify if it matches the signature provided in the jwt
-        $signatureValid = ($base64_url_signature === $signature);
+        $signatureValid = ($signatureGenerated === $signature);
         
         if (!$signatureValid) {
             return false;

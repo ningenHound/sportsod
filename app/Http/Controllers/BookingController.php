@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Booking;
+use App\Helpers\JWTHelper;
 use \Datetime;
+
 
 class BookingController extends Controller
 {
@@ -17,6 +19,7 @@ class BookingController extends Controller
             return response($error, 400)->header('Content-Type', 'application/json');
         }
         $booking = Booking::find($id);
+        dd($booking);
         if(!$booking) {
             return response(['mensaje'=>'el booking no existe'], 404)->header('Content-Type', 'application/json');
         } 
@@ -37,6 +40,10 @@ class BookingController extends Controller
 
     public function update(Request $request, string $id) {
         $updateArray = [];
+        $errorAuth = $this->validateAuth($request);
+        if(isset($errorAuth['mensaje'])) {
+            return response($errorAuth, 401)->header('Content-Type', 'application/json');
+        }
         $error = $this->validateUpdate($request);
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
@@ -49,7 +56,7 @@ class BookingController extends Controller
         }
         Booking::where('id', $request->id)
         ->update($updateArray);
-
+        return response(['mensaje'=>'booking actualizado'], 200)->header('Content-Type', 'application/json');
     }
 
     public function delete(Request $request, string $id) {
@@ -136,5 +143,17 @@ class BookingController extends Controller
     private function isValidDate($dateParam, $format="Y-m-d H:i:s") {
         $d = DateTime::createFromFormat($format, $dateParam);
         return $d && $d->format($format) == $dateParam;
+    }
+
+    public function validateAuth(Request $request):array {
+        $token = $request->bearerToken();
+        //dd($token);
+        if(!$token) {
+            return ['mensaje'=> 'usuario no autenticado'];
+        }
+        if(!JWTHelper::isValid($token, env('APP_KEY', 'secret'))) {
+            return ['mensaje'=> 'token no valido'];
+        }
+        return [];
     }
 }

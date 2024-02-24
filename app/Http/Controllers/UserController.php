@@ -25,17 +25,20 @@ class UserController extends Controller
 
     public function create(Request $request) {
         $error = $this->validateCreate($request);
+        //dd($error);
         $errorAuth = $this->validateAuth($request);
+        //dd($errorAuth);
         if(isset($errorAuth['mensaje'])) {
-            return response($error, 401)->header('Content-Type', 'application/json');
+            return response($errorAuth, 401)->header('Content-Type', 'application/json');
+        }
+        
+        if(isset($error['mensaje'])) {
+            return response($error, 400)->header('Content-Type', 'application/json');
         }
         $token = $request->bearerToken();
         $role_id = JWTHelper::getClaim($token);
         if(Role::find($role_id)->description !="SYSTEM_ADMIN") {
-            return response('no autorizado', 403)->header('Content-Type', 'application/json');
-        }
-        if(isset($error['mensaje'])) {
-            return response($error, 400)->header('Content-Type', 'application/json');
+            return response(['mensaje'=>'no autorizado'], 403)->header('Content-Type', 'application/json');
         }
         $userWithSameEmail = User::where('email', $request->email)->first();
         if($userWithSameEmail) {
@@ -100,12 +103,13 @@ class UserController extends Controller
         if(!Hash::check($request->password, $user->password)) {
             return response(['mensaje'=> 'usuario o password incorrectos'], 401)->header('Content-Type', 'application/json');
         }
-        return JWTHelper::generate($user, env('APP_KEY', 'secret'));
+        return response(['token'=>  JWTHelper::generate($user, env('APP_KEY', 'secret')),
+                         'bearerToken' => 'Bearer '.JWTHelper::generate($user, env('APP_KEY', 'secret'))], 200)->header('Content-Type', 'application/json');
     }
 
     public function validateAuth(Request $request):array {
-        $token = $request->bearerToken();
-        if ($token === "") {
+        $token = $request->header('Authorization');
+        if(!$token) {
             return ['mensaje'=> 'usuario no autenticado'];
         }
         if(!JWTHelper::isValid($token, env('APP_KEY', 'secret'))) {
@@ -148,10 +152,10 @@ class UserController extends Controller
     }
 
     private function validateCreate($request):array {
-        if(!isset($request->name) || !isset($request->email) || !isset($request->password) || !isset($request->role_id)) {
-            return ['mensaje'=>'los campos name, email, password y role_id son obligatorios'];
+        if(!isset($request->name) || !isset($request->email) || !isset($request->password)) {
+            return ['mensaje'=>'los campos name, email y password son obligatorios'];
         }
-        if(!$this->validateInteger($request->role_id)) {
+        if(isset($request->role_id) && !$this->validateInteger($request->role_id)) {
             return ['mensaje'=>'el campo role_id debe ser entero'];
         }
         if(!$this->validateEmail($request->email)) {

@@ -58,5 +58,5 @@ Route::controller(UserController::class)->group(function () {
     Route::put('/user/{id}', 'update');
     Route::delete('/user/{id}', 'delete');
     Route::get('/user/{id}/bookings', 'listBookingsByUser');
-    Route::get('/login', 'login');
+    Route::post('/user/loginn', 'login');
 });
