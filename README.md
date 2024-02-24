@@ -12,8 +12,8 @@ You must install the following in order to run this project, go to each website 
 - [REDIS](https://redis.io) installed
 
 To run this project:
-- in your .env file, set the DB_PASSWORD with your own PostgreSQL password, the DB_USERNAME is set to postgres, but you're free to change it for your own PostgreSQL user
 - run `composer install`
+- in your .env file, set the DB_PASSWORD with your own PostgreSQL password, the DB_USERNAME is set to postgres, but you're free to change it to your own PostgreSQL user
 - create a postgres database called sportsod
 - run the migrations and seeders with `php artisan migrate:fresh --seed`
 - run the REDIS server with `redis-server`

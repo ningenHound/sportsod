@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bookings', function (Blueprint $table) {
+        Schema::create('fields', function (Blueprint $table) {
             $table->id();
-            $table->string('field_id');
-            $table->bigInteger('user_id');
-            $table->dateTime('booking_start');
-            $table->dateTime('booking_end');
+            $table->bigInteger('field_type');
+            $table->foreign('field_type')->references('id')->on('field_types');
+            $table->foreignId('venue_id')->constrained('venues')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('fields');
     }
 };
