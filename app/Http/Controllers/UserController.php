@@ -99,7 +99,7 @@ class UserController extends Controller
         $user->delete();
     }
 
-    public function login(Request $request):string {
+    public function login(Request $request) {
         $error = $this->validateLogin($request);
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
