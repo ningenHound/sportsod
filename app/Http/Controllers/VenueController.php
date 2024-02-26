@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Venue;
+use App\Models\Role;
 use Illuminate\Support\Facades\Redis;
+use App\Helpers\JWTHelper;
 
 class VenueController extends Controller
 {
@@ -23,17 +25,33 @@ class VenueController extends Controller
 
     public function create(Request $request) {
         $error = $this->validateCreate($request);
+        $errorAuth = $this->validateAuth($request);
+        if(isset($errorAuth['mensaje'])) {
+            return response($errorAuth, 401)->header('Content-Type', 'application/json');
+        }
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
         }
+
         Venue::create(['description' => $request->description, 'address' => $request->address]);
+        return response(['mensaje'=>'venue creado'], 201)->header('Content-Type', 'application/json');
     }
 
     public function update(Request $request, string $id) {
         $updateArray = [];
         $error = $this->validateUpdate($request);
+        $errorAuth = $this->validateAuth($request);
+        if(isset($errorAuth['mensaje'])) {
+            return response($errorAuth, 401)->header('Content-Type', 'application/json');
+        }
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
+        }
+        $token = $request->header('Authorization');
+        $role_id = JWTHelper::getClaim($token);
+        $userRole = Role::find($role_id)->description;
+        if($userRole != "ADMIN" || $userRole != "SYSTEM_ADMIN") {
+            return response(['mensaje'=>'no autorizado'], 403)->header('Content-Type', 'application/json');
         }
         $venue = Venue::find($id);
         if(!$venue) {
@@ -46,10 +64,24 @@ class VenueController extends Controller
             $updateArray['venue_id'] = $request->venue_id;
         }
         $venue->update($updateArray);
+        return response(['mensaje'=>'venue actualizado'], 200)->header('Content-Type', 'application/json');
     }
 
     public function delete(Request $request, string $id) {
         $error = $this->validateReadAndDelete($request, $id);
+        $errorAuth = $this->validateAuth($request);
+        if(isset($errorAuth['mensaje'])) {
+            return response($errorAuth, 401)->header('Content-Type', 'application/json');
+        }
+        if(isset($error['mensaje'])) {
+            return response($error, 400)->header('Content-Type', 'application/json');
+        }
+        $token = $request->header('Authorization');
+        $role_id = JWTHelper::getClaim($token);
+        if(Role::find($role_id)->description != "SYSTEM_ADMIN") {
+            return response(['mensaje'=>'no autorizado'], 403)->header('Content-Type', 'application/json');
+        }
+        
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
         }
@@ -58,6 +90,7 @@ class VenueController extends Controller
             return response(['mensaje'=>'el venue no existe'], 404)->header('Content-Type', 'application/json');
         }
         $venue->delete();
+        return response(['mensaje'=>'venue eliminado'], 200)->header('Content-Type', 'application/json');
     }
 
     public function listVenues(Request $request) {
@@ -89,7 +122,13 @@ class VenueController extends Controller
 
     private function validateCreate($request): array {
         if(!isset($request->description) || !isset($request->address)) {
-            return ['mensaje'=>'los parámetros description y address son obligatorios'];
+            return ['mensaje'=>'los campos description y address son obligatorios'];
+        }
+        if(trim($request->description) === "") {
+            return ['mensaje'=>'el campo descripcion no puede estar vacío'];
+        }
+        if(trim($request->address) === "") {
+            return ['mensaje'=>'el campo address no puede estar vacío'];
         }
         return [];
     }
@@ -99,7 +138,24 @@ class VenueController extends Controller
             return ['mensaje'=>'parametro id debe ser entero'];
         }
         if(!isset($request->description) && !isset($request->address)) {
-            return ['mensaje'=>'debe al menos actualizar los parámetros description o address'];
+            return ['mensaje'=>'debe al menos actualizar los campos description o address'];
+        }
+        if(isset($request->description) && trim($request->description) === "") {
+            return ['mensaje'=>'el campo descripcion no puede estar vacío'];
+        }
+        if(isset($request->address) && trim($request->address) === "") {
+            return ['mensaje'=>'el campo address no puede estar vacío'];
+        }
+        return [];
+    }
+
+    private function validateAuth(Request $request):array {
+        $token = $request->header('Authorization');
+        if(!$token) {
+            return ['mensaje'=> 'usuario no autenticado'];
+        }
+        if(!JWTHelper::isValid($token, env('APP_KEY', 'secret'))) {
+            return ['mensaje'=> 'token no valido'];
         }
         return [];
     }

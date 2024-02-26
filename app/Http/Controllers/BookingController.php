@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Booking;
 use App\Helpers\JWTHelper;
+use Illuminate\Support\Facades\DB;
 use \Datetime;
 
 
@@ -28,6 +29,10 @@ class BookingController extends Controller
 
     public function create(Request $request) {
         $error = $this->validateCreate($request);
+        $errorAuth = $this->validateAuth($request);
+        if(isset($errorAuth['mensaje'])) {
+            return response($errorAuth, 401)->header('Content-Type', 'application/json');
+        }
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
         }
@@ -81,10 +86,22 @@ class BookingController extends Controller
     }
 
     public function listActiveBookings(Request $request) {
-        if(!$this->isValidDate($request->booking_start) || !$this->isValidDate($request->booking_end)) {
-            return response(['mensaje'=>'los campos booking_start y booking_end deben ser fechas validas y con el formato correcto: YYYY-mm-dd HH:mm:ss'], 404)->header('Content-Type', 'application/json');
+        if(!isset($request->booking_start) || !isset($request->booking_start)) {
+            return response(['mensaje'=>'los campos booking_start y booking_end son obligatorios'], 400)->header('Content-Type', 'application/json');
         }
-        $bookings = Booking::all()->whereBetween('booking_start', [$request->booking_start, $request->booking_end]);
+        if(!$this->isValidDate($request->booking_start) || !$this->isValidDate($request->booking_end)) {
+            return response(['mensaje'=>'los campos booking_start y booking_end deben ser fechas validas y con el formato correcto: YYYY-mm-dd HH:mm:ss'], 400)->header('Content-Type', 'application/json');
+        }
+        $redis = Redis::connection();
+        $redisActiveBookings = $redis->get('activeBookings');
+        if(isset($redisActiveBookings)) {
+            $bookings = json_decode($redisActiveBookings);
+        } else {
+            $redis->set('activeBookings', json_encode(DB::select('select id, field_id, user_id, booking_start, booking_end, created_at, updated_at from bookings where booking_start >= ? and booking_end <= ?',[$request->booking_start, $request->booking_end])));
+            $bookings = json_decode($redis->get('activeBookings'));
+        }
+        //$bookings = DB::select('select id, field_id, user_id, booking_start, booking_end, created_at, updated_at from bookings where booking_start >= ? and booking_end <= ?',[$request->booking_start, $request->booking_end]);
+        //$bookings = Booking::all()->whereBetween('booking_start', [$request->booking_start, $request->booking_end]);
         return response($bookings, 200)->header('Content-Type', 'application/json');
     }
 
@@ -117,7 +134,7 @@ class BookingController extends Controller
         if(strtotime($request->booking_end) - strtotime($request->booking_start) < 0) {
             return ['mensaje'=>'la fecha de inicio booking_start no puede ser mayor a la fecha fin booking_end'];
         }
-        if(strtotime($request->booking_end) - strtotime($request->booking_start) < $this::BOOKING_TIME) {
+        if((strtotime($request->booking_end) - strtotime($request->booking_start)) < $this::BOOKING_TIME) {
             return ['mensaje'=>'el tiempo minimo de reserva es de media'];
         }
 
