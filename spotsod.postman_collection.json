@@ -1,0 +1,298 @@
+{
+	"info": {
+		"_postman_id": "2731d9d3-80c4-47be-a947-db3b9db5454d",
+		"name": "spotsod",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32736643"
+	},
+	"item": [
+		{
+			"name": "localhost:8000/field/2",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8000/field/2",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"field",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/venues-all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/venues-all",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"venues-all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/user/login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"marktwain@sportsod.com\",\n    \"password\":\"222\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/user/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"user",
+						"login"
+					],
+					"query": [
+						{
+							"key": "Content-Type",
+							"value": "application",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/user/4",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJTSEEyNTYiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MDg3NDcyNjMsInVzZXJfaWQiOjMsInJvbGVfaWQiOjN9.RdiuPreH5dgbz5vTrgGsFwZCGOyua_zcdKO00Dzcl-k",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"useryyy\",\n    \"email\":\"usy@sportsod.com\",\n    \"password\":\"112\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/user/4",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"user",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8000/venue/1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/venue/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"venue",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/booking/create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/booking/create",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"booking",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8000/venue/1",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJTSEEyNTYiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MDg5MTMxMDEsInVzZXJfaWQiOjMsInJvbGVfaWQiOjN9.DiaMqpotNJtsKzqu4u7zV--DXK-SF3KptO9UGjX5lFo",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/venue/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"venue",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/active-bookings",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"field_id\":1,\n    \"booking_start\":\"2024-02-26 05:45:00\",\n    \"booking_end\":\"2024-02-26 09:45:00\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/active-bookings",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"active-bookings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/field/1/bookings",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"booking_start\":\"2024-02-26 09:45\",\n    \"booking_end\":\"2024-02-26 07:45\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/field/1/bookings",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"field",
+						"1",
+						"bookings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/venue/bookings",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"venue_id\":1,\n    \"field_id\":1,\n    \"booking_start\":\"2024-02-26 05:45:00\",\n    \"booking_end\":\"2024-02-26 09:45:00\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/venue/bookings",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"venue",
+						"bookings"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
