@@ -7,6 +7,8 @@ use App\Models\Venue;
 use App\Models\Role;
 use Illuminate\Support\Facades\Redis;
 use App\Helpers\JWTHelper;
+use Illuminate\Support\Facades\DB;
+use \Datetime;
 
 class VenueController extends Controller
 {
@@ -105,6 +107,32 @@ class VenueController extends Controller
         return response($venues, 200)->header('Content-Type', 'application/json');
     }
 
+    public function getAllBookings(Request $request) {
+        if(!isset($request->booking_start) || !isset($request->booking_end) || !isset($request->field_id) || !isset($request->venue_id)) {
+            return response(['mensaje'=>'los campos booking_start, booking_end y field_id son obligatorios'], 400)->header('Content-Type', 'application/json');
+        }
+        if(!$this->validateInteger($request->field_id) || !$this->validateInteger($request->venue_id)) {
+            return response(['mensaje'=>'los campos field_id y venue_id deben ser numéricos'], 400)->header('Content-Type', 'application/json');
+        }
+        if(!$this->isValidDate($request->booking_start) || !$this->isValidDate($request->booking_end)) {
+            return response(['mensaje'=>'los campos booking_start y booking_end deben ser fechas validas y con el formato correcto: YYYY-mm-dd HH:mm:ss'], 400)->header('Content-Type', 'application/json');
+        }
+        return DB::select('select  bookings.id,
+                            bookings.field_id, 
+                            bookings.user_id, 
+                            bookings.booking_start, 
+                            bookings.booking_end, 
+                            bookings.created_at, 
+                            bookings.updated_at 
+                            from venues, fields, bookings 
+                            where venues.id=?
+                            and fields.id=?
+                            and venues.id=fields.id
+                            and fields.id=bookings.field_id
+                            and bookings.field_id=? and bookings.booking_start >= ? and bookings.booking_end <= ?'
+                            ,[$request->venue_id, $request->field_id, $request->field_id, $request->booking_start, $request->booking_end]);
+    }
+
     private function validateInteger($idParam) {
         $idParam = filter_var($idParam, FILTER_VALIDATE_INT);
         if(!$idParam) {
@@ -158,6 +186,11 @@ class VenueController extends Controller
             return ['mensaje'=> 'token no valido'];
         }
         return [];
+    }
+
+    private function isValidDate($dateParam, $format="Y-m-d H:i:s") {
+        $d = DateTime::createFromFormat($format, $dateParam);
+        return $d && $d->format($format) == $dateParam;
     }
 
 }

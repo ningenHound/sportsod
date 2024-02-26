@@ -86,22 +86,16 @@ class BookingController extends Controller
     }
 
     public function listActiveBookings(Request $request) {
-        if(!isset($request->booking_start) || !isset($request->booking_start)) {
-            return response(['mensaje'=>'los campos booking_start y booking_end son obligatorios'], 400)->header('Content-Type', 'application/json');
+        if(!isset($request->booking_start) || !isset($request->booking_start) || !isset($request->field_id)) {
+            return response(['mensaje'=>'los campos booking_start, booking_end y field_id son obligatorios'], 400)->header('Content-Type', 'application/json');
+        }
+        if(!$this->validateInteger($request->field_id)) {
+            return response(['mensaje'=>'el campo field_id debe ser numérico'], 400)->header('Content-Type', 'application/json');
         }
         if(!$this->isValidDate($request->booking_start) || !$this->isValidDate($request->booking_end)) {
             return response(['mensaje'=>'los campos booking_start y booking_end deben ser fechas validas y con el formato correcto: YYYY-mm-dd HH:mm:ss'], 400)->header('Content-Type', 'application/json');
         }
-        $redis = Redis::connection();
-        $redisActiveBookings = $redis->get('activeBookings');
-        if(isset($redisActiveBookings)) {
-            $bookings = json_decode($redisActiveBookings);
-        } else {
-            $redis->set('activeBookings', json_encode(DB::select('select id, field_id, user_id, booking_start, booking_end, created_at, updated_at from bookings where booking_start >= ? and booking_end <= ?',[$request->booking_start, $request->booking_end])));
-            $bookings = json_decode($redis->get('activeBookings'));
-        }
-        //$bookings = DB::select('select id, field_id, user_id, booking_start, booking_end, created_at, updated_at from bookings where booking_start >= ? and booking_end <= ?',[$request->booking_start, $request->booking_end]);
-        //$bookings = Booking::all()->whereBetween('booking_start', [$request->booking_start, $request->booking_end]);
+        $bookings = DB::select('select id, field_id, user_id, booking_start, booking_end, created_at, updated_at from bookings where field_id=? and booking_start >= ? and booking_end <= ?',[$request->field_id, $request->booking_start, $request->booking_end]);
         return response($bookings, 200)->header('Content-Type', 'application/json');
     }
 
@@ -115,7 +109,7 @@ class BookingController extends Controller
 
     private function validateReadAndDelete($request, $id): array {
         if(!$this->validateInteger($id)) {
-            return ['mensaje'=>'el id debe ser numerico'];
+            return ['mensaje'=>'el id debe ser numérico'];
         }
         return [];
     }
@@ -125,7 +119,7 @@ class BookingController extends Controller
             return ['mensaje'=>'los campos field_id, user_id, booking_start y booking_end son obligatorios'];
         }
         if(!$this->validateInteger($request->field_id) || !$this->validateInteger($request->user_id)) {
-            return ['mensaje'=>'los campos field_id y user_id deben ser numericos'];
+            return ['mensaje'=>'los campos field_id y user_id deben ser numéricos'];
         }
         if(!$this->isValidDate($request->booking_start) || !$this->isValidDate($request->booking_end)) {
             return ['mensaje'=>'los campos booking_start y booking_end deben ser fechas validas y con el formato correcto: YYYY-mm-dd HH:mm:ss'];

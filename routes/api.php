@@ -29,6 +29,7 @@ Route::get('/', function () {
 Route::controller(VenueController::class)->group(function () {
     Route::get('/venue/{id}', 'read');
     Route::post('/venue/create', 'create');
+    Route::post('/venue/bookings', 'getAllBookings'); 
     Route::put('/venue/{id}', 'update');
     Route::delete('/venue/{id}', 'delete');
     Route::get('/venue/{id}/fields', 'listFields');
@@ -40,7 +41,7 @@ Route::controller(FieldController::class)->group(function () {
     Route::post('/field/create', 'create');
     Route::put('/field/{id}', 'update');
     Route::delete('/field/{id}', 'delete');
-    Route::get('/field/{id}/bookings', 'listBookingsByField');
+    Route::post('/field/{id}/bookings', 'listBookingsByField');
 });
 
 Route::controller(BookingController::class)->group(function () {
