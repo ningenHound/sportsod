@@ -122,8 +122,9 @@ class UserController extends Controller
         if(!Hash::check($request->password, $user->password)) {
             return response(['mensaje'=> 'usuario o password incorrectos'], 401)->header('Content-Type', 'application/json');
         }
-        return response(['token'=>  JWTHelper::generate($user, env('APP_KEY', 'secret')),
-                         'bearerToken' => 'Bearer '.JWTHelper::generate($user, env('APP_KEY', 'secret'))], 200)->header('Content-Type', 'application/json');
+        $token = JWTHelper::generate($user, env('APP_KEY', 'secret'));
+        return response(['token'=>  $token,
+                         'bearerToken' => 'Bearer '.$token], 200)->header('Content-Type', 'application/json');
     }
 
     public function validateAuth(Request $request):array {

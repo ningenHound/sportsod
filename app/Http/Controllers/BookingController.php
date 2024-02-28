@@ -28,6 +28,7 @@ class BookingController extends Controller
     }
 
     public function create(Request $request) {
+        //dd(env('APP_KEY'));
         $error = $this->validateCreate($request);
         $errorAuth = $this->validateAuth($request);
         if(isset($errorAuth['mensaje'])) {
@@ -36,11 +37,17 @@ class BookingController extends Controller
         if(isset($error['mensaje'])) {
             return response($error, 400)->header('Content-Type', 'application/json');
         }
+        $activeBookings = $bookings = DB::select('select id, field_id, user_id, booking_start, booking_end, created_at, updated_at from bookings where field_id=? and booking_start >= ? and booking_end <= ?',[$request->field_id, $request->booking_start, $request->booking_end]);
+        if(count($activeBookings) > 0) {
+            return response(['mensaje' => 'ya existe una reserva para ese campo en esa fecha'], 403)->header('Content-Type', 'application/json');
+        }
         Booking::create(['field_id' => $request->field_id, 
                         'user_id' => $request->user_id,
                         'booking_start' => $request->booking_start,
                         'booking_end' => $request->booking_end
                     ]);
+
+        return response(['mensaje' => 'reserva creada'], 201)->header('Content-Type', 'application/json');            
     }
 
     public function update(Request $request, string $id) {
@@ -157,7 +164,7 @@ class BookingController extends Controller
     }
 
     public function validateAuth(Request $request):array {
-        $token = $request->bearerToken();
+        $token = $request->header('Authorization');
         //dd($token);
         if(!$token) {
             return ['mensaje'=> 'usuario no autenticado'];

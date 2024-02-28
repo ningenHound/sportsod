@@ -13,8 +13,8 @@ class JWTHelper {
         $header = $tokenParts[0];
         $payload = $tokenParts[1];
         $signature = $tokenParts[2];
-    
-        $signatureGenerated = Base64UrlHelper::base64url_encode(hash_hmac($algorythm, $header . "." . $payload, $secret, true));
+        //$signature2 = Base64UrlHelper::base64url_decode($signature);
+        $signatureGenerated = Base64UrlHelper::base64url_encode(hash_hmac($algorythm, $header . "." . $payload, $secret));
         
         // verify if it matches the signature provided in the jwt
         $signatureValid = ($signatureGenerated === $signature);
@@ -31,7 +31,7 @@ class JWTHelper {
         $payload = ['iat'=>time(), 'user_id'=>$user->id, 'role_id'=>$user->role_id];
         $base64UrlHeader = Base64UrlHelper::base64url_encode(json_encode($header));
         $base64UrlPayload = Base64UrlHelper::base64url_encode(json_encode($payload));
-        $signature = hash_hmac($algorythm, $base64UrlHeader . "." . $base64UrlPayload, $secret, true);
+        $signature = hash_hmac($algorythm, $base64UrlHeader . "." . $base64UrlPayload, $secret);
         $base64UrlSignature = Base64UrlHelper::base64url_encode($signature);
         return $base64UrlHeader.".".$base64UrlPayload.".".$base64UrlSignature;
     }
