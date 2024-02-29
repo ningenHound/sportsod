@@ -26,8 +26,6 @@ class BookingTest extends TestCase
 
         $response = $this->withHeaders($header)
         ->post('/booking/create', $body);
-        //dd($response);
         $response->assertStatus(201);
-        //$this->assertDatabaseHas('bookings', ['field_id'=>1,'user_id'=>$userPlayer->id]);
     }
 }
