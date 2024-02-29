@@ -11,6 +11,8 @@ You must install the following in order to run this project, go to each website 
 - [PostgreSQL](https://www.postgresql.org) installed, also make sure you have the proper driver for php installed
 - [REDIS](https://redis.io) installed
 
+## Running the project
+
 To run this project:
 - run `composer install`
 - in your .env file, set the DB_PASSWORD with your own PostgreSQL password, the DB_USERNAME is set to postgres, but you're free to change it to your own PostgreSQL user
@@ -18,3 +20,9 @@ To run this project:
 - run the migrations and seeders with `php artisan migrate:fresh --seed`
 - run the REDIS server with `redis-server`
 - start the project locally with `php artisan serve`
+
+## Testing
+
+To run the tests, execute:
+
+`php artisan test --testsuite=Feature --stop-on-failure`

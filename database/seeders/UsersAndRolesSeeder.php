@@ -12,6 +12,7 @@ class UsersAndRolesSeeder extends Seeder
 {
 
     public function run() {
+        
         $role1 = Role::create(['description' => 'SYSTEM_ADMIN']);
         $role2 = Role::create(['description' => 'ADMIN']);
         $role3 = Role::create(['description' => 'PLAYER']);
